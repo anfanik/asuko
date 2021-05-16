@@ -1,0 +1,45 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+}
+
+group 'me.anfanik'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'com.typesafe:config:1.4.0'
+    compile 'org.apache.httpcomponents:httpclient:4.5.13'
+}
+
+jar {
+    manifest {
+        attributes "Main-Class": "me.anfanik.asuko.Asuko"
+    }
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+publishing {
+    repositories {
+        maven {
+            url 'https://repository.anfanik.me/public'
+            credentials {
+                username System.getenv('A5K_USERNAME')
+                password System.getenv('A5K_PASSWORD')
+            }
+        }
+    }
+    publications {
+        maven(MavenPublication) {
+            groupId project.group
+            artifactId project.name
+            version project.version
+            artifact jar
+        }
+    }
+}
