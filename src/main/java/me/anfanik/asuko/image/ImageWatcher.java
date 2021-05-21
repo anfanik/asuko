@@ -30,8 +30,8 @@ public class ImageWatcher {
             public void run() {
                 files.forEach(file -> {
                     if (file.isUpdated()) {
-                        AsukoLogger.info("\"%s\" file is updated! Restarting.", file.getId());
-                        System.exit(0);
+                        AsukoLogger.info("\"%s\" file is updated! Setting restart required.", file.getId());
+                        Asuko.setRestartRequired();
                     }
                 });
             }

@@ -74,57 +74,23 @@ public class Asuko {
 
     public static void setRestartRequired() {
         restartRequired = true;
+        AsukoLogger.info("Restart is required! Trying to restart.");
         if (isCanRestart.get()) {
             performRestart();
+        } else {
+            AsukoLogger.info("Unable to restart because is not allowed.");
         }
     }
 
-    public static void tryToRestart() {
+    public static void performSafeRestartIfRequired() {
         if (restartRequired) {
             performRestart();
         }
     }
 
     public static void performRestart() {
+        AsukoLogger.info("Restarting.");
         System.exit(0);
-    }
-
-    private static List<BuildFile> loadFiles(List<? extends Config> files) {
-        List<BuildFile> result = new ArrayList<>();
-
-        for (Config fileConfig : files) {
-            checkConfigFields(fileConfig, "id", "url", "destination");
-
-            String id = fileConfig.getString("id");
-            String url = fileConfig.getString("url");
-            String hashUrl = fileConfig.getString("hash");
-            File destination = new File(fileConfig.getString("destination"));
-
-            FileCredentials credentials = null;
-            if (fileConfig.hasPath("credentials")) {
-                Config credentialsConfig = fileConfig.getConfig("credentials");
-                checkConfigFields(credentialsConfig, "username", "password");
-
-                String username = credentialsConfig.getString("username");
-                String password = credentialsConfig.getString("password");
-                credentials = new FileCredentials(username, password);
-            }
-
-            BuildFile file = new BuildFile(id, url, hashUrl, destination, credentials);
-            result.add(file);
-        }
-
-        return result;
-    }
-
-    private static void downloadFiles(List<BuildFile> files) {
-        for (BuildFile file : files) {
-            if (!file.download()) {
-                AsukoLogger.error("Unable to download \"%s\" file!", file.getId());
-                System.exit(0);
-                return;
-            }
-        }
     }
 
     public static void checkConfigFields(Config config, String... fields) {
