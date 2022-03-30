@@ -1,5 +1,9 @@
-# asuko [![build](https://github.com/anfanik/asuko/actions/workflows/build.yml/badge.svg)](https://github.com/anfanik/asuko/actions/workflows/build.yml)
-Asuko - Java autodeploy software.
+<h1 align="center">asuko </h1>  <br>
+
+<p align="center">
+  Java application autoupdate software
+</p>
+
 
 ## Usage
 Create a configuration file `asuko.conf`
@@ -17,3 +21,17 @@ files: [
 	}
 ]
 ```
+
+## Integration
+
+* Set allow restart check. It should block application when it's is not required
+``` java
+Asuko.setIsCanRestart(() -> Bukkit.getOnlinePlayers().isEmpty());
+```
+
+* Try to restart when it makes allowed. It will restart your application if restart is required
+``` java
+Asuko.performSafeRestartIfRequired();
+```
+
+* Done!
