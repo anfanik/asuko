@@ -2,18 +2,16 @@ package me.anfanik.asuko;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import me.anfanik.asuko.build.BuildFile;
-import me.anfanik.asuko.build.FileCredentials;
 import me.anfanik.asuko.image.ImageWatcher;
 
 import java.io.File;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Supplier;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class Asuko {
 
@@ -63,28 +61,23 @@ public class Asuko {
         } catch (Throwable throwable) {
             AsukoLogger.error("Unable to launch application because of unknown exception!", throwable);
         }
+
+        Executors.newScheduledThreadPool(1).scheduleAtFixedRate(() -> {
+            if (restartRequired && RestartHelper.isApprovedRestart()) {
+                performRestart();
+            }
+        }, 1, 1, TimeUnit.SECONDS);
     }
 
-    private static Supplier<Boolean> isCanRestart = () -> true;
     private static boolean restartRequired = false;
-
-    public static void setIsCanRestart(Supplier<Boolean> isCanRestart) {
-        Asuko.isCanRestart = isCanRestart;
-    }
 
     public static void setRestartRequired() {
         restartRequired = true;
         AsukoLogger.info("Restart is required! Trying to restart.");
-        if (isCanRestart.get()) {
+        if (RestartHelper.isCanRestart()) {
             performRestart();
         } else {
             AsukoLogger.info("Unable to restart because is not allowed.");
-        }
-    }
-
-    public static void performSafeRestartIfRequired() {
-        if (restartRequired) {
-            performRestart();
         }
     }
 
@@ -101,5 +94,4 @@ public class Asuko {
             }
         }
     }
-
 }
